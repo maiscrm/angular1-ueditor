@@ -47,6 +47,7 @@ http://inhu.net
                 this.editor = new UE.getEditor(_editorId, _UEConfig);
                 return this.editor.ready(function() {
                   _self.editorReady = true;
+
                   _self.editor.addListener("contentChange", function() {
                     ctrl.$setViewValue(_self.editor.getContent());
                     if (!_updateByRender) {
@@ -56,6 +57,13 @@ http://inhu.net
                     }
                     _updateByRender = false;
                   });
+
+                  // 在火狐浏览器中，当在ueditor中输入中文时，不会触发keydown事件，导致model值不能同步更新
+                  if (navigator.userAgent.indexOf("Firefox") > -1) {
+                    _self.editor.addListener("keyup", function() {
+                      _self.editor.fireEvent('contentchange');
+                    });
+                  }
                   _self.editor.addListener("click", function() {
                     $(element).trigger('click');
                   });
